@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Zombi Znns</title>
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="css/styles.css" rel="stylesheet" />
+       
+        <script src="js/jquery-3.6.0.min.js"></script>
+        <script src="js/raphael/raphael.min.js"></script>
+        <script src="js/morris/morris.min.js"></script>
+    </head>
+    <body id="page-top">
+        <!-- Navigation-->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
+            <div class="container px-4">
+                <a class="navbar-brand" href="#page-top">Znns</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                <div class="collapse navbar-collapse" id="navbarResponsive">
+                    <ul class="navbar-nav ms-auto">
+                        <!--<li class="nav-item"><a class="nav-link" href="#">Actualizar</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Services</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>-->
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <!-- Header-->
+        <header class="bg-primary bg-gradient text-white">
+            <div class="container px-4 text-center">
+                <h1 class="fw-bolder">Bienvenido a ZSSN. </h1>
+                <p class="lead">(Red Social de Supervivencia Zombi)</p>
+                
+            </div>
+        </header>
+        
+        <section id="about">
+            <div class="container px-4">
+                <div class="row gx-4">
+                    <div class="col-md-4">
+                      <center>  <h3>Total de Supervivientes  <p id="total_supervivientes"></p></h3> </center>
+                        <div id="myfirstchart" style="height: 300px;"></div>
+
+                    </div>
+                    <div class="col-md-8" id="">
+                        <center>  <h2>Tabla de Items  </h2> </center>
+                          <div class="col-md-12" id="tabladeitems" > </div>
+  
+                      </div>
+                </div>
+            </div>
+        </section>
+        <!-- Services section-->
+        <section class="bg-light" id="services">
+            <div class="container px-4">
+                <div class="row gx-4 justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="col-md-12" id="">
+                            <center>  <h2>Tabla de Infectados  </h2> </center>
+                              <div class="col-md-12" id="tabladeinfectados" > </div>
+      
+                          </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Contact section-->
+        
+        <!-- Footer-->
+        <footer class="py-5 bg-dark">
+            
+        </footer>
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="js/scripts.js"></script>
+    </body>
+</html>
+
+
+<script>
+
+
+$(document).ready(function() {
+
+var url="http://127.0.0.1:8000";  ///modifiar por el host donde esta el api
+var data_api;
+
+ /// Dibujar Grafica % supervivientes   
+ $.getJSON( url+"/api/supervivientes/reportes/infectados/", function( json ) {
+  console.log( json.porcentaje_noinfectado);
+  $('#total_supervivientes').html(json.total_supervivientes);
+
+
+                new Morris.Donut({
+            // ID of the element in which to draw the chart.
+            element: 'myfirstchart',
+            // Chart data records -- each entry in this array corresponds to a point on
+            // the chart.
+            data: [{label:'% Infectados' , value: json.porcentaje_infectados},
+                    {label:'% No Infectados' , value: json.porcentaje_noinfectado} 
+                    ],
+            // The name of the data record attribute that contains x-values.
+            xkey: 'year',
+            // A list of names of data record attributes that contain y-values.
+            ykeys: ['value'],
+            // Labels for the ykeys -- will be displayed when you hover over the
+            // chart.
+            labels: ['Value']
+            });
+
+//// fin porcentaje grafica
+
+});
+
+/// Dibujar tabla items   
+$.getJSON( url+"/api/supervivientes/reportes/items/", function( json ) {
+            
+            var tabla = "<table class='table'><thead><tr><th>Nombre Item</th><th>Total de Recursos</th><th>Promedio</th><th>Item de infectados</th><th>Puntos perdidos</th></thead><tbody> ";
+            var tabla2="";
+            $.each(json,function(i, recursos){
+
+                console.log('Nombre ' + recursos.nombre_item + ', Total de recrusos: ' + recursos.total_item_recurso);
+
+                tabla2=tabla2+"<tr><td>"+recursos.nombre_item+"</td>"+"<td>"+recursos.cantidad_item_recurso+"</td>"+"<td>"+recursos.promedio_items+"</td>"+"<td>"+recursos.cantidad_items_infectados+"</td>"+"<td>"+recursos.puntos_perdidos_infectados+"</td></tr>";
+            });
+
+            tabla = tabla+tabla2+"</tbody></table>";
+            $('#tabladeitems').html(tabla);
+
+//// fin dibuja tabla
+
+});
+
+
+/// Dibujar tabla infectados   
+$.getJSON( url+"/api/supervivientes/reportes/puntosporinfectado/", function( json ) {
+ 
+                var tabla = "<table class='table'><thead><tr><th>Infectado</th><th>Cantidad de Items Perdidos</th><th>Puntos Perdidos</th></thead><tbody> ";
+                var tabla2="";
+                $.each(json,function(i, recursos){
+
+                    console.log('Nombre ' + recursos.nombre_item + ', Total de recrusos: ' + recursos.total_item_recurso);
+
+                    tabla2=tabla2+"<tr><td>"+recursos.nombre_infectado+"</td>"+"<td>"+recursos.cantidad_item_perdidos+"</td>"+"<td>"+recursos.total_puntos_perdidos+"</td></tr>";
+                });
+
+                tabla = tabla+tabla2+"</tbody></table>";
+                $('#tabladeinfectados').html(tabla);
+
+//// fin dibuja tabla
+
+});
+
+
+});
+
+
+
+
+
+
+</script>
